@@ -1,70 +1,116 @@
 "use client";
 
 import Link from "next/link";
-import { HeartPulse } from "lucide-react";
-import CardNav, { type CardNavItem } from "./CardNav";
+import { Letter3DSwap } from "@/components/motion/letter-3d-swap";
+import { ChevronDown } from "lucide-react";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { useState } from "react";
 
-const navItems: CardNavItem[] = [
-  {
-    label: "Care",
-    bgColor: "var(--accent-light)",
-    textColor: "var(--ink)",
-    links: [
-      { label: "Services", href: "/services", ariaLabel: "Explore physiotherapy services" },
-      { label: "How it works", href: "/#booking", ariaLabel: "Learn how booking works" },
-    ],
+const navLinks = [
+  { label: "Home", href: "/" },
+  { 
+    label: "About Us", 
+    href: "/about",
+    hasDropdown: true,
+    dropdownItems: [
+      { label: "Services", href: "/services" },
+      { label: "Benefits", href: "/benefits" }
+    ]
   },
-  {
-    label: "About",
-    bgColor: "var(--surface-muted)",
-    textColor: "var(--ink)",
-    links: [
-      { label: "Our approach", href: "/about", ariaLabel: "Learn about Meridian's approach" },
-      { label: "FAQs", href: "/faq", ariaLabel: "Read frequently asked questions" },
-    ],
-  },
-  {
-    label: "Visit",
-    bgColor: "var(--ink)",
-    textColor: "var(--surface)",
-    links: [
-      { label: "Contact us", href: "/contact", ariaLabel: "Contact Meridian Physiotherapy" },
-      { label: "Book a session", href: "/appointment", ariaLabel: "Book a physiotherapy session" },
-    ],
-  },
+  { label: "Classes", href: "/classes" },
+  { label: "Pricing", href: "/pricing" },
+  
 ];
 
-function MeridianMark() {
-  return (
-    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--accent)] text-[var(--accent-ink)]" aria-hidden="true">
-      <HeartPulse className="h-4 w-4" strokeWidth={2.25} />
-    </span>
-  );
-}
-
-function MeridianLogo() {
-  return (
-    <Link href="/" aria-label="Meridian Physiotherapy home" className="flex items-center gap-3">
-      <MeridianMark />
-      <span className="leading-none">
-        <span className="block font-display text-[17px] font-semibold tracking-[-0.02em] text-[var(--ink)]">Meridian</span>
-        <span className="mt-1 block text-[9px] font-semibold uppercase tracking-[0.2em] text-[var(--ink-soft)]">Physiotherapy</span>
-      </span>
-    </Link>
-  );
-}
-
 export default function Header() {
+  const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
+
   return (
-    <CardNav
-      logo={<MeridianLogo />}
-      logoAlt="Meridian Physiotherapy"
-      items={navItems}
-      baseColor="var(--surface)"
-      menuColor="var(--ink)"
-      buttonBgColor="var(--accent)"
-      buttonTextColor="var(--accent-ink)"
-      className="top-3 w-[calc(100%-1.5rem)] max-w-6xl md:top-5 md:w-[calc(100%-3rem)]"
-    />
+    <header className="fixed top-0 left-0 right-0 z-50 bg-transparent">
+      <div className="mx-auto max-w-7xl px-6 py-6">
+        <nav className="flex items-center justify-between">
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-light tracking-wide text-white">
+            physio-pro
+          </Link>
+
+          {/* Navigation Links with 3D Animation */}
+          <div className="hidden items-center gap-8 md:flex">
+            {navLinks.map((link) => (
+              <div 
+                key={link.label} 
+                className="relative"
+                onMouseEnter={() => link.hasDropdown && setHoveredMenu(link.label)}
+                onMouseLeave={() => setHoveredMenu(null)}
+              >
+                {link.hasDropdown ? (
+                  <Menu>
+                    {({ open }) => (
+                      <>
+                        <MenuButton className="flex items-center gap-1 group">
+                          <Letter3DSwap
+                            as="span"
+                            frontFaceClassName="text-white"
+                            mainClassName="cursor-pointer text-lg font-medium hover:text-white"
+                            rotateDirection="top"
+                            secondFaceClassName="text-white"
+                            staggerDuration={0.04}
+                            transition={{ damping: 28, stiffness: 320, type: "spring" }}
+                          >
+                            {link.label}
+                          </Letter3DSwap>
+                          <ChevronDown className={`h-4 w-4 text-white transition-transform duration-300 ${hoveredMenu === link.label ? 'rotate-180' : ''}`} />
+                        </MenuButton>
+
+                        <MenuItems
+                          static
+                          className={`absolute top-full left-0 mt-2 w-48 origin-top-left rounded-lg border border-white/10 bg-white/95 backdrop-blur-sm p-1 text-sm shadow-lg transition-all duration-200 ease-out focus:outline-none ${
+                            hoveredMenu === link.label 
+                              ? 'opacity-100 scale-100 visible' 
+                              : 'opacity-0 scale-95 invisible pointer-events-none'
+                          }`}
+                        >
+                          {link.dropdownItems?.map((item) => (
+                            <MenuItem key={item.label}>
+                              <Link
+                                href={item.href}
+                                className="group flex w-full items-center gap-2 rounded-lg px-3 py-2 font-semibold text-[var(--ink)] data-[focus]:bg-[var(--accent-light)] hover:bg-[var(--accent-light)] transition-colors"
+                              >
+                                {item.label}
+                              </Link>
+                            </MenuItem>
+                          ))}
+                        </MenuItems>
+                      </>
+                    )}
+                  </Menu>
+                ) : (
+                  <Link href={link.href}>
+                    <Letter3DSwap
+                      frontFaceClassName="text-white"
+                      mainClassName="cursor-pointer text-lg font-medium hover:text-white"
+                      rotateDirection="top"
+                      secondFaceClassName="text-white"
+                      staggerDuration={0.04}
+                      transition={{ damping: 28, stiffness: 320, type: "spring" }}
+                    >
+                      {link.label}
+                    </Letter3DSwap>
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Contact Button */}
+          <Link
+            href="/contact"
+            className="rounded-full bg-white px-6 py-2.5 text-sm font-medium text-[var(--ink)] transition-opacity hover:opacity-90"
+          >
+            Contact Us
+          </Link>
+        </nav>
+      </div>
+    </header>
   );
 }

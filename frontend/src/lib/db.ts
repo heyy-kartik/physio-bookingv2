@@ -1,46 +1,10 @@
-import Database from "better-sqlite3";
-import path from "path";
-import fs from "fs";
+import { neon } from "@neondatabase/serverless";
 
-const dataDir = path.join(process.cwd(), "data");
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true });
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is not set");
 }
 
-const dbPath = path.join(dataDir, "appointments.db");
-const db = new Database(dbPath);
-
-db.pragma("journal_mode = WAL");
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS appointments (
-    id TEXT PRIMARY KEY,
-    name TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    email TEXT,
-    service TEXT NOT NULL,
-    preferredDate TEXT NOT NULL,
-    preferredTime TEXT NOT NULL,
-    message TEXT,
-    consent INTEGER NOT NULL DEFAULT 0,
-    status TEXT NOT NULL DEFAULT 'new',
-    createdAt TEXT NOT NULL
-  )
-`);
-
-db.exec(`
-  CREATE TABLE IF NOT EXISTS subscribers (
-    id TEXT PRIMARY KEY,
-    email TEXT NOT NULL UNIQUE,
-    createdAt TEXT NOT NULL
-  )
-`);
-
-export function insertSubscriber(email: string) {
-  db.prepare(
-    `INSERT OR IGNORE INTO subscribers (id, email, createdAt) VALUES (?, ?, ?)`
-  ).run(crypto.randomUUID(), email.trim().toLowerCase(), new Date().toISOString());
-}
+const sql = neon(process.env.DATABASE_URL);
 
 export type Appointment = {
   id: string;
@@ -56,26 +20,25 @@ export type Appointment = {
   createdAt: string;
 };
 
-export function insertAppointment(a: Omit<Appointment, "id" | "createdAt" | "status">) {
+export async function insertAppointment(a: Omit<Appointment, "id" | "createdAt" | "status">) {
   const id = crypto.randomUUID();
   const createdAt = new Date().toISOString();
-  const stmt = db.prepare(`
+  
+  await sql`
     INSERT INTO appointments (id, name, phone, email, service, preferredDate, preferredTime, message, consent, status, createdAt)
-    VALUES (@id, @name, @phone, @email, @service, @preferredDate, @preferredTime, @message, @consent, 'new', @createdAt)
-  `);
-  stmt.run({
-    id,
-    name: a.name,
-    phone: a.phone,
-    email: a.email ?? null,
-    service: a.service,
-    preferredDate: a.preferredDate,
-    preferredTime: a.preferredTime,
-    message: a.message ?? null,
-    consent: a.consent ? 1 : 0,
-    createdAt,
-  });
+    VALUES (${id}, ${a.name}, ${a.phone}, ${a.email || null}, ${a.service}, ${a.preferredDate}, ${a.preferredTime}, ${a.message || null}, ${a.consent}, 'new', ${createdAt})
+  `;
+  
   return { id, createdAt };
 }
 
-export default db;
+export async function insertSubscriber(email: string) {
+  const id = crypto.randomUUID();
+  const createdAt = new Date().toISOString();
+  
+  await sql`
+    INSERT INTO subscribers (id, email, createdAt) 
+    VALUES (${id}, ${email.trim().toLowerCase()}, ${createdAt})
+    ON CONFLICT (email) DO NOTHING
+  `;
+}

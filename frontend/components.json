@@ -23,6 +23,8 @@
   "menuAccent": "subtle",
   "registries": {
     "@magicui": "https://magicui.design/r/{name}",
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@shadcn-space": "https://shadcnspace.com/r/{name}.json",
+    "@cnippet": "https://ui.cnippet.dev/r/{name}.json"
   }
 }

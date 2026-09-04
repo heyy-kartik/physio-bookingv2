@@ -6,6 +6,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { name, phone, email, service, preferredDate, preferredTime, message, consent } = body;
 
+    // Validate required fields server-side
     if (!name || !phone || !service || !preferredDate || !preferredTime || !consent) {
       return NextResponse.json(
         { error: "Missing required fields." },
@@ -13,7 +14,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = insertAppointment({
+    // Insert appointment into Neon database (async operation)
+    const result = await insertAppointment({
       name,
       phone,
       email,

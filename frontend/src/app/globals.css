@@ -80,9 +80,9 @@
   --color-danger:       var(--danger);
 
   /* Fonts — loaded via next/font/google in layout.tsx */
-  --font-display: var(--font-figtree);    /* Figtree — headings/display  */
-  --font-sans:    var(--font-noto-sans);  /* Noto Sans — body            */
-  --font-heading: var(--font-heading);    /* Playfair Display — accent   */
+  --font-display: var(--font-inter-tight);    /* Inter Tight — headings/display  */
+  --font-sans:    var(--font-raleway);        /* Raleway — body                  */
+  --font-accent:  var(--font-unbounded);      /* Unbounded — accent elements     */
 
   /* Shadcn */
   --color-sidebar-ring:                var(--sidebar-ring);
@@ -162,12 +162,12 @@
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-sans), 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-sans), 'Raleway', ui-sans-serif, system-ui, sans-serif;
   overflow-x: clip;
 }
 
 h1, h2, h3, .font-display {
-  font-family: var(--font-display), 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-display), 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Structural eye/arc motif — used as a section marker */

@@ -46,7 +46,7 @@ export default function AppointmentForm() {
     setForm((f) => ({ ...f, [key]: value }));
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setErrorMsg("");
 
@@ -58,7 +58,7 @@ export default function AppointmentForm() {
     setStatus("submitting");
 
     try {
-      const res = await fetch("/internal-api/appointments", {
+      const res = await fetch("/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -123,7 +123,7 @@ export default function AppointmentForm() {
             type="text"
             value={form.name}
             onChange={(e) => update("name", e.target.value)}
-            className="input"
+            className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)]"
             placeholder="Your name"
           />
         </Field>
@@ -133,7 +133,7 @@ export default function AppointmentForm() {
             type="tel"
             value={form.phone}
             onChange={(e) => update("phone", e.target.value)}
-            className="input"
+            className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)]"
             placeholder="+91 98765 43210"
           />
         </Field>
@@ -144,7 +144,7 @@ export default function AppointmentForm() {
           type="email"
           value={form.email}
           onChange={(e) => update("email", e.target.value)}
-          className="input"
+          className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)]"
           placeholder="you@example.com"
         />
       </Field>
@@ -153,7 +153,7 @@ export default function AppointmentForm() {
         <select
           value={form.service}
           onChange={(e) => update("service", e.target.value)}
-          className="input"
+          className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)]"
         >
           {services.map((s) => (
             <option key={s} value={s}>{s}</option>
@@ -168,14 +168,14 @@ export default function AppointmentForm() {
             type="date"
             value={form.preferredDate}
             onChange={(e) => update("preferredDate", e.target.value)}
-            className="input"
+            className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)]"
           />
         </Field>
         <Field label="Preferred time">
           <select
             value={form.preferredTime}
             onChange={(e) => update("preferredTime", e.target.value)}
-            className="input"
+            className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)]"
           >
             {timeSlots.map((t) => (
               <option key={t} value={t}>{t}</option>
@@ -188,7 +188,7 @@ export default function AppointmentForm() {
         <textarea
           value={form.message}
           onChange={(e) => update("message", e.target.value)}
-          className="input min-h-24 resize-y"
+          className="w-full border border-[var(--line)] bg-[var(--surface)] rounded-xl px-4 py-3 text-[15px] text-[var(--ink)] outline-none focus:border-[var(--accent)] min-h-24 resize-y"
           placeholder="E.g. previous injury, referring doctor, specific concern"
         />
       </Field>
@@ -221,22 +221,6 @@ export default function AppointmentForm() {
       >
         {status === "submitting" ? "Sending…" : "Request appointment"}
       </button>
-
-      <style jsx global>{`
-        .input {
-          width: 100%;
-          border: 1px solid var(--line);
-          background: var(--surface);
-          border-radius: 0.75rem;
-          padding: 0.75rem 1rem;
-          font-size: 15px;
-          color: var(--ink);
-          outline: none;
-        }
-        .input:focus {
-          border-color: var(--accent);
-        }
-      `}</style>
     </form>
   );
 }

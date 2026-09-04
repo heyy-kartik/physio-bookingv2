@@ -1,6 +1,7 @@
 import Arc from "@/components/Arc";
 import Link from "next/link";
 import type { Metadata } from "next";
+import BookingButton from "@/components/BookingButton";
 
 export const metadata: Metadata = {
   title: "Contact — Meridian Physiotherapy",
@@ -47,12 +48,9 @@ export default function ContactPage() {
             Skip the back-and-forth — fill out the appointment form and
             we&apos;ll confirm your slot on WhatsApp the same day.
           </p>
-          <Link
-            href="/appointment"
-            className="mt-6 inline-block rounded-full bg-[var(--accent)] px-7 py-3.5 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
-          >
-            Book an appointment
-          </Link>
+          <div className="mt-6">
+            <BookingButton />
+          </div>
         </div>
       </div>
     </div>

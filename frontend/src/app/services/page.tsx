@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Arc from "@/components/Arc";
 import type { Metadata } from "next";
+import BookingButton from "@/components/BookingButton";
 
 export const metadata: Metadata = {
   title: "Services — Meridian Physiotherapy",
@@ -72,12 +73,9 @@ export default function ServicesPage() {
         <p className="mt-2 max-w-md text-[15px] text-[var(--ink-soft)]">
           Book an initial assessment and we&apos;ll recommend the right plan for you.
         </p>
-        <Link
-          href="/appointment"
-          className="mt-6 inline-block rounded-full bg-[var(--accent)] px-7 py-3.5 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
-        >
-          Book an appointment
-        </Link>
+        <div className="mt-6">
+          <BookingButton />
+        </div>
       </div>
     </div>
   );

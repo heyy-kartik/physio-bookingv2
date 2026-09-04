@@ -1,135 +1,119 @@
 import Link from "next/link";
 import Arc from "@/components/Arc";
 import Testimonials from "@/components/user-review";
+import BookingButton from "@/components/BookingButton";
+import Image from "next/image";
+import { AvatarGroup, Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import PhysiotherapyServicesAccordion from "@/components/PhysiotherapyServicesAccordion";
 
 const services = [
   {
-    name: "Sports injury recovery",
-    detail: "Targeted rehab plans to get you back to training and competing.",
+    id: "sports-injury",
+    number: "01",
+    title: "Sports Injury Recovery",
+    detail: "Specialized treatment for sports-related injuries including muscle strains, joint sprains, and overuse injuries. Get back to your game stronger than before.",
   },
   {
-    name: "Post-surgical rehabilitation",
-    detail: "Guided, progressive recovery following orthopaedic surgery.",
+    id: "post-surgical",
+    number: "02", 
+    title: "Post-Surgical Rehabilitation",
+    detail: "Comprehensive recovery programs following orthopedic surgeries. Regain mobility, strength, and function through evidence-based rehabilitation techniques.",
   },
   {
-    name: "Chronic pain & posture",
-    detail: "Long-term relief for back, neck, and joint pain from daily strain.",
+    id: "chronic-pain",
+    number: "03",
+    title: "Chronic Pain & Posture",
+    detail: "Long-term pain management and postural correction for conditions like lower back pain, neck pain, and repetitive strain injuries.",
   },
   {
-    name: "Mobility for older adults",
-    detail: "Balance, strength, and confidence for everyday movement.",
+    id: "mobility-seniors",
+    number: "04",
+    title: "Mobility for Older Adults", 
+    detail: "Age-specific physiotherapy focused on maintaining independence, preventing falls, and managing age-related conditions like arthritis.",
   },
 ];
 
 const steps = [
-  { title: "Book online", detail: "Pick a service and a time that works for you." },
-  { title: "We confirm on WhatsApp", detail: "You'll hear back within the same day to lock in your slot." },
-  { title: "First session", detail: "A full assessment and the start of your recovery plan." },
+  { title: "Choose your service", detail: "Browse our specialized treatments for sports injuries, chronic pain, or post-surgical recovery." },
+  { title: "Book your appointment", detail: "Select a convenient time — we confirm your slot via WhatsApp the same day." },
+  { title: "Begin your recovery", detail: "Join 500+ patients on their journey back to full mobility." },
 ];
 
 export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative overflow-hidden border-b border-[var(--line)] bg-[var(--surface)]">
-        <div className="mx-auto max-w-6xl px-6 pb-16 pt-14 md:pb-24 md:pt-20">
-          <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.78fr)] lg:items-center lg:gap-16">
-            <div className="max-w-2xl">
-              <div className="flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.16em] text-[var(--sage)]">
-                <Arc className="h-5 w-10" />
-                <span>One-on-one physiotherapy</span>
-              </div>
-              <h1 className="mt-7 max-w-xl font-display text-5xl leading-[0.98] tracking-[-0.04em] text-[var(--ink)] md:text-7xl">
-                Movement,
-                <br />
-                <span className="text-[var(--accent)]">restored.</span>
-              </h1>
-              <p className="mt-7 max-w-lg text-lg leading-relaxed text-[var(--ink-soft)] md:text-xl">
-                Get back to moving without thinking about it. Personalised care
-                for pain relief, injury recovery, and rebuilding strength.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center gap-4">
-                <Link
-                  href="/appointment"
-                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-[var(--accent)] px-7 text-[15px] font-semibold text-white shadow-lg shadow-[rgba(13,122,107,0.18)] transition-[transform,opacity] duration-200 hover:-translate-y-0.5 hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
-                >
-                  Book an appointment
-                </Link>
-                <Link
-                  href="/services"
-                  className="inline-flex min-h-12 items-center rounded-full border border-[var(--line)] px-5 text-[15px] font-medium text-[var(--ink)] transition-colors hover:border-[var(--accent)] hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--accent)]"
-                >
-                  Explore services
-                </Link>
-              </div>
-              <p className="mt-5 text-sm text-[var(--ink-soft)]">
-                Preferred time collected online · confirmation via WhatsApp the same day
-              </p>
-            </div>
+      <section className="relative min-h-screen overflow-hidden bg-[var(--ink)]">
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <Image
+            src="/hero-image.webp"
+            alt="Yoga practice"
+            width={2000}
+            height={1125}
+            className="object-cover"
+            priority
+          />
+          {/* <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/40" /> */}
+        </div>
 
-            <div className="relative min-h-[22rem] overflow-hidden rounded-[2rem] bg-[var(--ink)] p-7 text-white shadow-xl shadow-[rgba(15,43,42,0.12)] md:min-h-[27rem] md:p-9">
-              <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full border border-white/10" />
-              <div className="absolute -bottom-32 -left-24 h-72 w-72 rounded-full border border-white/10" />
-              <div className="relative flex h-full flex-col justify-between">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">Your recovery plan</span>
-                  <span className="rounded-full border border-white/20 px-3 py-1 text-xs text-white/70">01 / 03</span>
-                </div>
-                <div className="py-10">
-                  <Arc className="h-10 w-20 brightness-0 invert opacity-90" />
-                  <p className="mt-6 max-w-xs font-display text-3xl leading-tight md:text-4xl">
-                    Clear steps. Confident movement.
-                  </p>
-                  <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">
-                    Assessment-led care that meets you where you are and builds toward where you want to be.
-                  </p>
-                </div>
-                <div className="flex items-center justify-between border-t border-white/15 pt-5 text-sm">
-                  <span className="text-white/65">Tailored to your body</span>
-                  <Link href="/appointment">
-                  <span className="font-semibold text-[var(--accent-light)]">Start today →</span>
-                  </Link>
-                </div>
-              </div>
-            </div>
+        {/* Content */}
+        <div className="relative mx-auto max-w-7xl px-6 pt-32 pb-20 md:pt-40 md:pb-28">
+          {/* Social Proof - Top */}
+          
+          {/* Hero Heading */}
+          <h1 className=" max-w-2xl font-display text-3xl leading-[1.1] text-white md:text-5xl lg:text-9xl">
+            <span className="inline-block px-4">Movement,</span> <span className="inline-block px-4">restored.</span>
+          </h1>
+
+          {/* CTA Buttons */}
+          <div className="mt-12 flex flex-wrap items-center gap-4">
+            <BookingButton text="Book Appointment" />
+            <Link
+              href="/services"
+              className="inline-flex min-h-12 items-center rounded-full border border-white/30 px-6 text-[15px] font-medium text-white transition-colors hover:border-white hover:bg-white/10"
+            >
+              View Our Services
+            </Link>
           </div>
 
-          <div className="mt-14 grid gap-4 border-t border-[var(--line)] pt-6 text-sm sm:grid-cols-3 md:mt-20">
-            <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--accent)]" />
-              <span className="text-[var(--ink-soft)]"><strong className="font-semibold text-[var(--ink)]">15+ years</strong> of clinical experience</span>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--accent)]" />
-              <span className="text-[var(--ink-soft)]"><strong className="font-semibold text-[var(--ink)]">One-on-one</strong> sessions, every time</span>
-            </div>
-            <div className="flex items-start gap-3">
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--accent)]" />
-              <span className="text-[var(--ink-soft)]"><strong className="font-semibold text-[var(--ink)]">Same-day</strong> WhatsApp confirmation</span>
-            </div>
+          {/* Video Card - Bottom */}
+          
+              
+
+          {/* Social Proof - Bottom Right */}
+          <div className="absolute bottom-20 right-6 flex items-center gap-3 md:bottom-28">
+            <AvatarGroup>
+              <Avatar>
+                <AvatarImage src="https://cdn.prod.website-files.com/69f9a1d4ec8c14c23cb89d30/69fa07b9983163bc891d968c_Student%201.webp" alt="Student 1" />
+                <AvatarFallback>S1</AvatarFallback>
+              </Avatar>
+              <Avatar>
+                <AvatarImage src="https://cdn.prod.website-files.com/69f9a1d4ec8c14c23cb89d30/69fa07b89aba25bae00bd8ff_b46c8d3675ae2e48dd740722e1ffc82c_Student%202.webp" alt="Student 2" />
+                <AvatarFallback>S2</AvatarFallback>
+              </Avatar>
+              <Avatar>
+                <AvatarImage src="https://cdn.prod.website-files.com/69f9a1d4ec8c14c23cb89d30/69fa07b8efc6c1439da361f0_Student%203.webp" alt="Student 3" />
+                <AvatarFallback>S3</AvatarFallback>
+              </Avatar>
+            </AvatarGroup>
+            <p className="text-sm text-white/90">500+ patients treated successfully</p>
           </div>
         </div>
       </section>
 
-      {/* Services preview */}
+      {/* Services accordion */}
       <section className="border-t border-[var(--line)] bg-[var(--surface)]">
-        <div className="mx-auto max-w-6xl px-6 py-20">
-          <div className="flex items-end justify-between gap-6">
+        <div className="mx-auto max-w-4xl px-6 py-20">
+          <div className="flex items-end justify-between gap-6 mb-12">
             <h2 className="font-display text-2xl text-[var(--ink)] md:text-3xl">
-              How we can help
+              Our Services
             </h2>
             <Link href="/services" className="hidden text-sm text-[var(--ink-soft)] underline underline-offset-4 hover:text-[var(--ink)] md:inline">
-              View all services
+              All services
             </Link>
           </div>
-          <div className="mt-10 grid gap-px overflow-hidden rounded-2xl border border-[var(--line)] bg-[var(--line)] md:grid-cols-2">
-            {services.map((s) => (
-              <div key={s.name} className="bg-[var(--surface)] p-8">
-                <p className="font-display text-lg text-[var(--ink)]">{s.name}</p>
-                <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-soft)]">{s.detail}</p>
-              </div>
-            ))}
-          </div>
+          <PhysiotherapyServicesAccordion services={services} />
         </div>
       </section>
 
@@ -138,7 +122,7 @@ export default function Home() {
       {/* How booking works */}
       <section id="booking" className="mx-auto max-w-6xl px-6 py-20">
         <h2 className="font-display text-2xl text-[var(--ink)] md:text-3xl">
-          Booking takes three steps
+          How to get started
         </h2>
         <div className="mt-10 grid gap-8 md:grid-cols-3">
           {steps.map((s, i) => (
@@ -158,14 +142,9 @@ export default function Home() {
       <section className="border-t border-[var(--line)] bg-[var(--ink)]">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-6 py-16 md:flex-row md:items-center">
           <p className="font-display text-2xl text-white md:text-3xl">
-            Ready to start feeling better?
+            Ready to start your recovery?
           </p>
-          <Link
-            href="/appointment"
-            className="rounded-full bg-[var(--accent)] px-7 py-3.5 text-[15px] font-medium text-white transition-opacity hover:opacity-90"
-          >
-            Book your first session
-          </Link>
+          <BookingButton text="Book your consultation" />
         </div>
       </section>
     </div>

@@ -12,7 +12,7 @@
 | Framework | Next.js 16 (App Router, TypeScript) | File-based routing fits the fixed page set; server + client components in one project; deploys cleanly to Vercel |
 | Styling | Tailwind CSS v4 + CSS variables | Design tokens (color/type) centralized in `globals.css`, used via `var(--*)` so the palette can be swapped without touching component code |
 | Fonts | `next/font/google` (Fraunces + Inter) | Self-hosted at build time by Next.js, no runtime font-loading flash |
-| Database | SQLite via `better-sqlite3` | Zero external services for v1; synchronous API keeps the API route simple; pure npm package (no native binary download step), unlike Prisma's engine binaries |
+| Database | Postgres (Neon), via `@neondatabase/serverless` | HTTP-based driver built for serverless/edge functions — avoids the TCP connection-pool exhaustion that plain `pg` or Prisma can hit on Vercel; no ORM/schema-migration layer needed for a single evolving table |
 | Booking delivery | WhatsApp click-to-chat (`wa.me` link) | No approval process, no cost, works immediately; trade-off is one manual tap from the client (see PRD §10 for the automated-API upgrade path) |
 
 ## 2. High-level flow
@@ -23,10 +23,12 @@
 │  (/appointment) │                       │  (Next.js route)      │
 └─────────────┘                          └──────────┬────────────┘
                                                      │ 2. validate + insert
+                                                     │    (HTTPS, via
+                                                     │    @neondatabase/serverless)
                                                      ▼
                                           ┌──────────────────────┐
-                                          │  SQLite (data/*.db)  │
-                                          │  via better-sqlite3  │
+                                          │   Neon (Postgres)    │
+                                          │   Appointment table   │
                                           └──────────┬────────────┘
                                                      │ 3. 200 OK {id}
                                                      ▼
@@ -40,6 +42,12 @@
 │ WhatsApp     │
 └─────────────┘
 ```
+
+Step 2 runs over HTTPS rather than a persistent TCP connection — Neon's
+serverless driver issues each query as an HTTP request, which is what
+makes it safe to call from a stateless serverless function without
+exhausting a connection pool (each invocation doesn't need to hold a
+long-lived DB connection open).
 
 The save (step 2–3) always happens before the WhatsApp link is generated
 (step 4), so a request is never sent to WhatsApp without first being
@@ -68,21 +76,21 @@ src/
     FaqItem.tsx              Accordion item (client component)
     AppointmentForm.tsx      Booking form (client component)
   lib/
-    db.ts                   better-sqlite3 setup, schema, insertAppointment()
+    db.ts                   Neon client (@neondatabase/serverless), insertAppointment()
     whatsapp.ts              buildWhatsAppLink() — formats wa.me URL
-data/
-  appointments.db            SQLite file (gitignored, created at runtime)
 ```
 
 ## 4. Key modules
 
 ### `src/lib/db.ts`
-- Opens (or creates) `data/appointments.db` on first import
-- Creates the `appointments` table if it doesn't exist (no migration
-  tool for v1 — schema changes are manual `ALTER TABLE` or a fresh file)
-- Exposes `insertAppointment()`, the single write path used by the API
-  route — keeping the schema and insert logic in one place makes it a
-  clean seam for swapping in a hosted database later (see §6)
+- Creates a Neon SQL client via `neon(process.env.DATABASE_URL)` —
+  no connection pool to manage; each query is a single HTTPS request
+- The `Appointment` table is created once, manually, via a plain SQL
+  statement run against the Neon console or `psql` (no migration tool
+  for v1 — see §6)
+- Exposes `insertAppointment()` (async, returns a Promise), the single
+  write path used by the API route — keeping the query and shape in one
+  place makes it a clean seam if a migration tool or ORM is added later
 
 ### `src/lib/whatsapp.ts`
 - `buildWhatsAppLink()` takes the submitted appointment fields and
@@ -95,6 +103,8 @@ data/
 - `POST` only
 - Validates required fields server-side (never trusts client-side
   validation alone)
+- `await`s `insertAppointment()`, since the Neon driver is async
+  (unlike the earlier synchronous SQLite version)
 - Returns `400` with a message on invalid input, `500` on unexpected
   failure, `200 {ok, id}` on success
 
@@ -104,13 +114,12 @@ data/
   WhatsApp link and opens it (`window.open`) — with a fallback button on
   the confirmation screen in case the popup was blocked
 
-
 ## 5. Design system
- 
+
 Tokens live as CSS custom properties in `globals.css` and are mapped
 into Tailwind's `@theme inline` block, so both raw CSS and Tailwind
 utility classes (`text-[var(--ink)]`, etc.) read from the same source:
- 
+
 | Token | Value | Role |
 |---|---|---|
 | `--linen` | `#f3eee4` | Page background |
@@ -120,6 +129,12 @@ utility classes (`text-[var(--ink)]`, etc.) read from the same source:
 | `--accent` | `#0f6e5e` | Deep teal — CTAs, primary emphasis |
 | `--sage` | `#2f6b4f` | Forest green — secondary accent, section labels |
 | `--line` | `#ddd3bd` | Borders, dividers |
+
+Chosen for a trustworthy-but-approachable read: teal signals clinical
+confidence without feeling cold, forest green (replacing an earlier
+ochre) reinforces a "recovery/wellness" tone rather than a corporate-
+medical one, and both sit on the warm linen base rather than a sterile
+white.
 
 Typography: **Fraunces** (display/headings) + **Inter** (body) — set via
 `next/font/google` in `layout.tsx`, exposed as CSS variables and mapped
@@ -133,17 +148,18 @@ FAQ accordion's expand indicator) rather than decoration.
 
 | Constraint (v1) | Why | Upgrade path |
 |---|---|---|
-| SQLite is a local file | Zero setup, zero cost, works for a single small deployment | Swap `src/lib/db.ts` for a hosted Postgres client (e.g. Prisma + Neon/Supabase), keeping `insertAppointment()`'s signature so callers don't change. Required before deploying to a platform without persistent disk (e.g. Vercel's serverless functions) |
+| No ORM / schema migrations | Single `Appointment` table, created once by hand; not worth the overhead yet | Introduce Prisma or Drizzle against the same Neon database if the schema starts changing frequently or more tables are added |
 | WhatsApp delivery needs one client tap | No business verification or ongoing cost | Move link-building server-side and call the WhatsApp Business Cloud API (or Twilio) from `api/appointments/route.ts` after the DB insert, for fully automatic delivery |
-| No admin view of appointments | Out of scope for v1 | Add an authenticated `/admin` route reading from the same `appointments` table/DB client |
-| No schema migrations | Single `CREATE TABLE IF NOT EXISTS`, fine for one evolving table | Introduce a migration tool (e.g. Prisma Migrate or Drizzle) if the schema starts changing frequently or once moved to Postgres |
+| No admin view of appointments | Out of scope for v1 | Add an authenticated `/admin` route querying the same Neon table |
 
 ## 7. Build/runtime notes
 
-- Development note: `better-sqlite3` was chosen over Prisma specifically
-  because Prisma's CLI downloads a query-engine binary from an external
-  host at `generate`/`db push` time — in network-restricted environments
-  this fails, whereas `better-sqlite3` only needs the npm registry
-- No environment variables are required for local dev to boot, but
-  `NEXT_PUBLIC_OWNER_WHATSAPP_NUMBER` must be set (see `.env.example`)
-  before the WhatsApp link will point at the real clinic number
+- Development note: `@neondatabase/serverless` was chosen over Prisma
+  specifically to avoid two things Prisma introduces — a query-engine
+  binary download at `generate`/`db push` time (which fails in
+  network-restricted environments), and a persistent TCP connection
+  pool that doesn't suit serverless functions. Neon's driver talks HTTP,
+  so each request is self-contained
+- Required environment variable: `DATABASE_URL` (the Neon pooled
+  connection string), in addition to
+  `NEXT_PUBLIC_OWNER_WHATSAPP_NUMBER` for the WhatsApp link
