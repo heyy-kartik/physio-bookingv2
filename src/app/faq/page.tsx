@@ -1,4 +1,5 @@
 import Arc from "@/components/Arc";
+import FadeUp from "@/components/FadeUp";
 import FaqItem from "@/components/FaqItem";
 import type { Metadata } from "next";
 
@@ -35,16 +36,24 @@ const faqs = [
 
 export default function FaqPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16 md:py-24">
-      <Arc className="mb-6 h-6 w-12" />
-      <h1 className="font-display text-4xl text-[var(--ink)] md:text-5xl">
-        Frequently asked questions
-      </h1>
-      <div className="mt-10 border-t border-[var(--line)]">
-        {faqs.map((f) => (
-          <FaqItem key={f.q} question={f.q} answer={f.a} />
-        ))}
-      </div>
+    <div className="mx-auto max-w-3xl px-6 py-24 md:py-28">
+      <FadeUp>
+        <div>
+          <Arc className="mb-6 h-6 w-12" />
+          <h1 className="font-display text-3xl text-[var(--ink)] sm:text-4xl md:text-5xl">
+            Frequently asked questions
+          </h1>
+        </div>
+      </FadeUp>
+      <FadeUp delay={0.12}>
+        <div className="mt-8 border-t border-[var(--line)] md:mt-10">
+          {faqs.map((f, i) => (
+            <FadeUp key={f.q} delay={i * 0.06} y={20} amount={0.15}>
+              <FaqItem question={f.q} answer={f.a} />
+            </FadeUp>
+          ))}
+        </div>
+      </FadeUp>
     </div>
   );
 }
