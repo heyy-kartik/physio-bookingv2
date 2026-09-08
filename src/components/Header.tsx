@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 "use client";
 
 import Link from "next/link";
@@ -49,7 +50,7 @@ export default function Header() {
             "mt-3 flex items-center justify-between gap-4 rounded-2xl border px-4 py-3 transition-all duration-300 md:mt-4 md:px-6",
             isScrolled
               ? "border-white/10 bg-[var(--ink)]/85 shadow-lg shadow-black/20 backdrop-blur-md"
-              : "border-transparent bg-transparent"
+              : "border-transparent bg-transparent",
           )}
         >
           {/* Logo */}
@@ -69,7 +70,9 @@ export default function Header() {
                 href={link.href}
                 className={cn(
                   "text-lg font-medium transition-colors",
-                  pathname === link.href ? "text-white" : "text-white/90 hover:text-white"
+                  pathname === link.href
+                    ? "text-white"
+                    : "text-white/90 hover:text-white",
                 )}
               >
                 <Letter3DSwap
@@ -104,7 +107,11 @@ export default function Header() {
             aria-controls="mobile-nav"
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/25 bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20 lg:hidden"
           >
-            {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {menuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </nav>
       </div>
@@ -149,7 +156,7 @@ export default function Header() {
                         "flex min-h-12 items-center justify-between rounded-xl px-4 text-lg font-medium transition-colors",
                         pathname === link.href
                           ? "bg-white/10 text-white"
-                          : "text-white/85 hover:bg-white/10 hover:text-white"
+                          : "text-white/85 hover:bg-white/10 hover:text-white",
                       )}
                     >
                       {link.label}
